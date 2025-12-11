@@ -2,7 +2,7 @@
   "name": "gixy",
   "displayName": "Gixy - NGINX Config Analyzer",
   "description": "Security analyzer for NGINX configurations. Detects SSRF, header injection, path traversal, and more.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "publisher": "getpagespeed",
   "author": {

@@ -82,25 +82,62 @@ function getConfig<T>(key: string): T {
 }
 
 function isNginxFile(doc: vscode.TextDocument): boolean {
-    // Check language ID
+    // Check language ID (set by nginx syntax extensions)
     if (doc.languageId === 'nginx' || doc.languageId === 'NGINX') {
         return true;
     }
     
-    // Check file extension/name
     const fileName = path.basename(doc.fileName);
     const ext = path.extname(doc.fileName);
+    const filePath = doc.fileName;
     
-    return (
-        ext === '.conf' ||
-        ext === '.nginx' ||
-        fileName === 'nginx.conf' ||
-        fileName.includes('nginx') ||
-        doc.fileName.includes('/nginx/') ||
-        doc.fileName.includes('/sites-available/') ||
-        doc.fileName.includes('/sites-enabled/') ||
-        doc.fileName.includes('/conf.d/')
-    );
+    // Definitely nginx by name
+    if (fileName === 'nginx.conf' || ext === '.nginx') {
+        return true;
+    }
+    
+    // Definitely nginx by path
+    const nginxPaths = ['/nginx/', '/sites-available/', '/sites-enabled/', '/conf.d/', '/snippets/'];
+    if (nginxPaths.some(p => filePath.includes(p))) {
+        return true;
+    }
+    
+    // For generic .conf files, check content for nginx patterns
+    if (ext === '.conf' || fileName.includes('nginx')) {
+        return looksLikeNginxConfig(doc.getText());
+    }
+    
+    return false;
+}
+
+function looksLikeNginxConfig(content: string): boolean {
+    // Look for nginx-specific directives/patterns
+    const nginxPatterns = [
+        /^\s*(server|http|events|stream|upstream)\s*\{/m,
+        /^\s*location\s+[~^=@\/]/m,
+        /^\s*(listen|server_name|root|index|proxy_pass|fastcgi_pass)\s+/m,
+        /^\s*(add_header|proxy_set_header|set|rewrite|return)\s+/m,
+        /^\s*(worker_processes|worker_connections|include)\s+/m,
+        /^\s*error_log\s+.*\s+(debug|info|notice|warn|error|crit)/m,
+    ];
+    
+    // Need at least 2 matches to be confident it's nginx
+    let matches = 0;
+    for (const pattern of nginxPatterns) {
+        if (pattern.test(content)) {
+            matches++;
+            if (matches >= 2) {
+                return true;
+            }
+        }
+    }
+    
+    // Single strong indicator is enough
+    if (/^\s*server\s*\{[\s\S]*listen\s+\d+/m.test(content)) {
+        return true;
+    }
+    
+    return false;
 }
 
 function analyzeFile(doc: vscode.TextDocument): void {

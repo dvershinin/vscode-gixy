@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.0] - 2024-12-11
+
+### Improved
+- **Smart file detection**: Now analyzes content to detect nginx configs, not just file extensions
+- Generic `.conf` files are checked for nginx-specific patterns before analysis
+- Avoids false positives on Apache, systemd, and other config formats
+
+### Fixed
+- Accurate line number reporting using gixy's native line tracking
+
 ## [0.1.0] - 2024-12-11
 
 ### Added
