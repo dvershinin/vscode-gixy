@@ -1,0 +1,57 @@
+# Pre-commit hooks for VSCode extension best practices
+# Install: npm install && npx husky install
+# Or use pre-commit: pip install pre-commit && pre-commit install
+
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$'
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  # Local hooks using npm scripts
+  - repo: local
+    hooks:
+      - id: npm-compile
+        name: TypeScript Compile
+        entry: npm run compile
+        language: system
+        types: [ts]
+        pass_filenames: false
+
+      - id: npm-lint
+        name: ESLint
+        entry: npm run lint
+        language: system
+        types: [ts]
+        pass_filenames: false
+
+      - id: package-json-valid
+        name: Validate package.json
+        entry: node -e "JSON.parse(require('fs').readFileSync('package.json'))"
+        language: system
+        files: 'package\.json$'
+        pass_filenames: false
+
+      - id: check-vsix-size
+        name: Check VSIX size limit
+        entry: bash -c 'if [ -f *.vsix ]; then size=$(stat -f%z *.vsix 2>/dev/null || stat -c%s *.vsix 2>/dev/null); if [ "$size" -gt 5242880 ]; then echo "VSIX too large: $size bytes (max 5MB)"; exit 1; fi; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: no-console-log
+        name: Check for console.log
+        entry: bash -c 'if grep -r "console\.log" src/ --include="*.ts" | grep -v "test"; then echo "Found console.log in source (use outputChannel instead)"; exit 1; fi; exit 0'
+        language: system
+        types: [ts]
+        pass_filenames: false
+

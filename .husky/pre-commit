@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run TypeScript compilation
+echo "🔧 Compiling TypeScript..."
+npm run compile || exit 1
+
+# Run linting
+echo "🔍 Running ESLint..."
+npm run lint || exit 1
+
+# Check formatting (don't auto-fix, just check)
+echo "✨ Checking Prettier formatting..."
+npm run format:check || {
+    echo "❌ Formatting issues found. Run 'npm run format' to fix."
+    exit 1
+}
+
+# Check for console.log in source (excluding tests)
+echo "🔎 Checking for console.log..."
+if grep -r "console\.log" src/*.ts 2>/dev/null | grep -v "test"; then
+    echo "⚠️  Warning: Found console.log in source files (use outputChannel instead)"
+fi
+
+echo "✅ Pre-commit checks passed!"
+

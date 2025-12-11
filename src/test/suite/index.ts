@@ -6,14 +6,14 @@ export async function run(): Promise<void> {
     // Create the mocha test
     const mocha = new Mocha({
         ui: 'tdd',
-        color: true
+        color: true,
     });
 
     const testsRoot = path.resolve(__dirname, '.');
 
     // Find all test files
     const files = await glob('**/**.test.js', { cwd: testsRoot });
-    
+
     // Add files to the test suite
     files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)));
 
@@ -28,4 +28,3 @@ export async function run(): Promise<void> {
         });
     });
 }
-

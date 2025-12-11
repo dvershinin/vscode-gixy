@@ -34,3 +34,4 @@ jobs:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         continue-on-error: true  # Don't fail if Open VSX publish fails
 
+

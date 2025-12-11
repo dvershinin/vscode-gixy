@@ -1,12 +1,29 @@
-.vscode/**
-.vscode-test/**
+# Source files
 src/**
-.gitignore
+
+# Dev config
+.vscode/**
+.github/**
+.husky/**
+.eslintrc.json
+.prettierrc
+.prettierignore
+.editorconfig
+.pre-commit-config.yaml
 tsconfig.json
-**/*.ts
-**/*.map
+
+# Build artifacts we don't need
+*.vsix
 node_modules/**
+package-lock.json
 
+# Source maps (not needed in production)
+**/*.map
 
+# Test files (not needed in production)
+out/test/**
+test-configs/**
 
-
+# Git
+.git/**
+.gitignore

@@ -2,7 +2,6 @@ import * as assert from 'assert';
 
 // Test the JSON parsing logic (mock version since we can't import the extension directly)
 suite('Gixy Parser Unit Tests', () => {
-    
     interface GixyIssue {
         plugin: string;
         summary: string;
@@ -31,9 +30,9 @@ suite('Gixy Parser Unit Tests', () => {
                 "summary": "Possible SSRF"
             }
         ]`;
-        
+
         const issues: GixyIssue[] = JSON.parse(jsonOutput);
-        
+
         assert.strictEqual(issues.length, 1);
         assert.strictEqual(issues[0].plugin, 'ssrf');
         assert.strictEqual(issues[0].line, 11);
@@ -54,9 +53,9 @@ suite('Gixy Parser Unit Tests', () => {
                 "summary": "Test issue"
             }
         ]`;
-        
+
         const issues: GixyIssue[] = JSON.parse(jsonOutput);
-        
+
         assert.strictEqual(issues.length, 1);
         assert.strictEqual(issues[0].line, undefined);
         assert.strictEqual(issues[0].file, undefined);
@@ -68,9 +67,9 @@ suite('Gixy Parser Unit Tests', () => {
             {"plugin": "valid_referers", "line": 15, "severity": "HIGH", "summary": "Bad referer", "config": "", "description": "", "path": "/a", "reason": "", "reference": ""},
             {"plugin": "add_header_redefinition", "line": 25, "severity": "MEDIUM", "summary": "Header issue", "config": "", "description": "", "path": "/a", "reason": "", "reference": ""}
         ]`;
-        
+
         const issues: GixyIssue[] = JSON.parse(jsonOutput);
-        
+
         assert.strictEqual(issues.length, 3);
         assert.strictEqual(issues[0].line, 5);
         assert.strictEqual(issues[1].line, 15);
@@ -86,7 +85,7 @@ suite('Gixy Parser Unit Tests', () => {
         // Verify that line 1 means first line of file
         const jsonOutput = `[{"plugin": "test", "line": 1, "severity": "LOW", "summary": "Test", "config": "", "description": "", "path": "/a", "reason": "", "reference": ""}]`;
         const issues: GixyIssue[] = JSON.parse(jsonOutput);
-        
+
         // Line 1 from gixy = first line of file
         // VS Code uses 0-based, so we'd convert: lineIndex = line - 1 = 0
         assert.strictEqual(issues[0].line, 1);
@@ -96,7 +95,7 @@ suite('Gixy Parser Unit Tests', () => {
 
     test('Severity values should be uppercase strings', () => {
         const severities = ['HIGH', 'MEDIUM', 'LOW', 'UNSPECIFIED'];
-        
+
         for (const sev of severities) {
             const json = `[{"plugin": "test", "severity": "${sev}", "summary": "", "config": "", "description": "", "path": "", "reason": "", "reference": ""}]`;
             const issues: GixyIssue[] = JSON.parse(json);
@@ -104,4 +103,3 @@ suite('Gixy Parser Unit Tests', () => {
         }
     });
 });
-

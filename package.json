@@ -2,14 +2,14 @@
   "name": "gixy",
   "displayName": "Gixy - NGINX Config Analyzer",
   "description": "Security analyzer for NGINX configurations. Detects SSRF, header injection, path traversal, and more.",
-  "version": "0.2.0",
+  "version": "0.5.0",
   "license": "MIT",
   "publisher": "getpagespeed",
   "author": {
     "name": "Danila Vershinin",
     "email": "info@getpagespeed.com"
   },
-  "homepage": "https://github.com/dvershinin/vscode-gixy#readme",
+  "homepage": "https://gixy.getpagespeed.com/",
   "bugs": {
     "url": "https://github.com/dvershinin/vscode-gixy/issues"
   },
@@ -33,10 +33,12 @@
     "vulnerability",
     "static analysis",
     "devops",
-    "sysadmin"
+    "sysadmin",
+    "web server",
+    "reverse proxy"
   ],
   "galleryBanner": {
-    "color": "#1e1e1e",
+    "color": "#1a1a2e",
     "theme": "dark"
   },
   "badges": [
@@ -44,6 +46,11 @@
       "url": "https://img.shields.io/pypi/v/gixy-ng.svg",
       "href": "https://pypi.org/project/gixy-ng/",
       "description": "PyPI Version"
+    },
+    {
+      "url": "https://img.shields.io/badge/docs-gixy.getpagespeed.com-blue",
+      "href": "https://gixy.getpagespeed.com/",
+      "description": "Documentation"
     }
   ],
   "icon": "icon.png",
@@ -51,37 +58,111 @@
     "onLanguage:nginx",
     "onLanguage:NGINX",
     "workspaceContains:**/nginx.conf",
-    "workspaceContains:**/*.nginx"
+    "workspaceContains:**/*.nginx",
+    "workspaceContains:**/sites-available/*",
+    "workspaceContains:**/sites-enabled/*"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "gixy.analyzeFile",
-        "title": "Gixy: Analyze Current File"
+        "title": "Analyze Current File",
+        "category": "Gixy",
+        "icon": "$(shield)"
       },
       {
         "command": "gixy.analyzeWorkspace",
-        "title": "Gixy: Analyze All NGINX Configs"
+        "title": "Analyze All NGINX Configs",
+        "category": "Gixy",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "gixy.showOutput",
+        "title": "Show Output",
+        "category": "Gixy",
+        "icon": "$(output)"
+      },
+      {
+        "command": "gixy.clearDiagnostics",
+        "title": "Clear All Diagnostics",
+        "category": "Gixy",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "gixy.openDocs",
+        "title": "Open Documentation",
+        "category": "Gixy"
+      },
+      {
+        "command": "gixy.installGixy",
+        "title": "Install/Reinstall Gixy",
+        "category": "Gixy",
+        "icon": "$(cloud-download)"
       }
     ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "gixy.analyzeFile",
+          "when": "resourceLangId == nginx || resourceFilename =~ /nginx\\.conf$/ || resourceExtname == .nginx",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "gixy.analyzeFile",
+          "when": "resourceLangId == nginx || resourceFilename =~ /nginx\\.conf$/ || resourceExtname == .nginx",
+          "group": "gixy@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "gixy.openDocs",
+          "when": "false"
+        }
+      ]
+    },
     "configuration": {
       "title": "Gixy",
       "properties": {
         "gixy.executable": {
           "type": "string",
           "default": "gixy",
-          "description": "Path to gixy executable"
+          "description": "Path to gixy executable. Use full path if not in PATH. Leave as 'gixy' for auto-detection.",
+          "order": 1
+        },
+        "gixy.autoInstall": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically install gixy-ng if not found. Uses VSCode's extension storage (cleaned up on uninstall).",
+          "order": 2
         },
         "gixy.analyzeOnSave": {
           "type": "boolean",
           "default": true,
-          "description": "Run analysis when saving nginx files"
+          "description": "Automatically analyze when saving nginx files",
+          "order": 3
         },
         "gixy.analyzeOnOpen": {
           "type": "boolean",
           "default": true,
-          "description": "Run analysis when opening nginx files"
+          "description": "Automatically analyze when opening nginx files",
+          "order": 4
+        },
+        "gixy.analyzeOnType": {
+          "type": "boolean",
+          "default": true,
+          "description": "Analyze as you type (debounced). Shows issues before saving.",
+          "order": 5
+        },
+        "gixy.analyzeDebounceMs": {
+          "type": "number",
+          "default": 750,
+          "minimum": 200,
+          "maximum": 5000,
+          "description": "Delay in milliseconds after typing before analysis runs. Higher = less CPU, lower = more responsive.",
+          "order": 6
         },
         "gixy.severityMap": {
           "type": "object",
@@ -90,7 +171,25 @@
             "MEDIUM": "Warning",
             "LOW": "Information"
           },
-          "description": "Map Gixy severities to VS Code diagnostic severities"
+          "description": "Map Gixy severities to VS Code diagnostic severities",
+          "properties": {
+            "HIGH": {
+              "type": "string",
+              "enum": ["Error", "Warning", "Information", "Hint"],
+              "default": "Error"
+            },
+            "MEDIUM": {
+              "type": "string",
+              "enum": ["Error", "Warning", "Information", "Hint"],
+              "default": "Warning"
+            },
+            "LOW": {
+              "type": "string",
+              "enum": ["Error", "Warning", "Information", "Hint"],
+              "default": "Information"
+            }
+          },
+          "order": 6
         }
       }
     },
@@ -99,7 +198,8 @@
         "id": "nginx",
         "aliases": [
           "NGINX",
-          "nginx"
+          "nginx",
+          "Nginx Configuration"
         ],
         "extensions": [
           ".conf",
@@ -107,9 +207,27 @@
         ],
         "filenames": [
           "nginx.conf",
-          "mime.types"
+          "mime.types",
+          "fastcgi_params",
+          "scgi_params",
+          "uwsgi_params"
         ],
         "configuration": "./language-configuration.json"
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "gixy",
+        "owner": "gixy",
+        "source": "gixy",
+        "fileLocation": "absolute",
+        "pattern": [
+          {
+            "regexp": "^\\[(.+)\\]\\s+(.+)$",
+            "code": 1,
+            "message": 2
+          }
+        ]
       }
     ]
   },
@@ -118,18 +236,28 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --ext ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "test": "node ./out/test/runTest.js",
-    "package": "vsce package"
+    "pretest": "npm run compile",
+    "package": "vsce package",
+    "prepare": "husky install || true"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.0.0",
     "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "@vscode/test-electron": "^2.3.0",
     "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.50.0",
     "glob": "^13.0.0",
+    "husky": "^8.0.0",
     "mocha": "^10.0.0",
+    "prettier": "^3.0.0",
     "typescript": "^5.0.0"
   }
 }
