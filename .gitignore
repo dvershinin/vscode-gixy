@@ -1,0 +1,29 @@
+# Build output
+out/
+dist/
+
+# Dependencies
+node_modules/
+
+# VS Code extension package
+*.vsix
+
+# TypeScript
+*.tsbuildinfo
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Test output
+.vscode-test/
+coverage/
+
+# Environment
+.env
+.env.local
+

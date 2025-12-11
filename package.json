@@ -1,0 +1,135 @@
+{
+  "name": "gixy",
+  "displayName": "Gixy - NGINX Config Analyzer",
+  "description": "Security analyzer for NGINX configurations. Detects SSRF, header injection, path traversal, and more.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publisher": "getpagespeed",
+  "author": {
+    "name": "Danila Vershinin",
+    "email": "info@getpagespeed.com"
+  },
+  "homepage": "https://github.com/dvershinin/vscode-gixy#readme",
+  "bugs": {
+    "url": "https://github.com/dvershinin/vscode-gixy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dvershinin/vscode-gixy"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "nginx",
+    "security",
+    "linter",
+    "configuration",
+    "ssrf",
+    "vulnerability",
+    "static analysis",
+    "devops",
+    "sysadmin"
+  ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "badges": [
+    {
+      "url": "https://img.shields.io/pypi/v/gixy-ng.svg",
+      "href": "https://pypi.org/project/gixy-ng/",
+      "description": "PyPI Version"
+    }
+  ],
+  "icon": "icon.png",
+  "activationEvents": [
+    "onLanguage:nginx",
+    "onLanguage:NGINX",
+    "workspaceContains:**/nginx.conf",
+    "workspaceContains:**/*.nginx"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gixy.analyzeFile",
+        "title": "Gixy: Analyze Current File"
+      },
+      {
+        "command": "gixy.analyzeWorkspace",
+        "title": "Gixy: Analyze All NGINX Configs"
+      }
+    ],
+    "configuration": {
+      "title": "Gixy",
+      "properties": {
+        "gixy.executable": {
+          "type": "string",
+          "default": "gixy",
+          "description": "Path to gixy executable"
+        },
+        "gixy.analyzeOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run analysis when saving nginx files"
+        },
+        "gixy.analyzeOnOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run analysis when opening nginx files"
+        },
+        "gixy.severityMap": {
+          "type": "object",
+          "default": {
+            "HIGH": "Error",
+            "MEDIUM": "Warning",
+            "LOW": "Information"
+          },
+          "description": "Map Gixy severities to VS Code diagnostic severities"
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "nginx",
+        "aliases": [
+          "NGINX",
+          "nginx"
+        ],
+        "extensions": [
+          ".conf",
+          ".nginx"
+        ],
+        "filenames": [
+          "nginx.conf",
+          "mime.types"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.74.0",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.22.0",
+    "glob": "^13.0.0",
+    "mocha": "^10.0.0",
+    "typescript": "^5.0.0"
+  }
+}
