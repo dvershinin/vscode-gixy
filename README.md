@@ -1,10 +1,14 @@
 # Gixy - NGINX Config Security Analyzer for VS Code
 
+[![Install from VS Code Marketplace](https://img.shields.io/badge/Install-VS%20Code%20Marketplace-007ACC?style=for-the-badge&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=getpagespeed.gixy)
+
 ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/getpagespeed.gixy)
 ![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/getpagespeed.gixy)
 [![Documentation](https://img.shields.io/badge/docs-gixy.getpagespeed.com-blue)](https://gixy.getpagespeed.com/)
 
 Catch NGINX misconfigurations before they become vulnerabilities! This extension integrates [Gixy](https://gixy.getpagespeed.com/) directly into VS Code/Cursor to provide real-time security analysis.
+
+**👉 [Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=getpagespeed.gixy)**
 
 ## ✨ Features
 
