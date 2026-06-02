@@ -136,6 +136,10 @@ Each plugin has detailed documentation explaining:
 - How to fix it
 - Safe configuration examples
 
+## 📡 Continuous Monitoring
+
+Once your edits land in production, pair the extension with **[GetPageSpeed Amplify](https://gixy.org/guides/nginx-monitoring-amplify)** for scheduled Gixy scans across every NGINX host plus runtime metrics and alerts. Drop-in compatible with the deprecated `nginx-amplify-agent`.
+
 ## 🤝 Contributing
 
 Issues and PRs welcome:
